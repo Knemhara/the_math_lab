@@ -1,27 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Math Lab</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f0f4f8;
-            padding: 50px;
-        }
-        h1 {
-            color: #174ea6;
-        }
-        p {
-            font-size: 20px;
-        }
-    </style>
-</head>
-<body>
-    <h1>Welcome to The Math Lab _ _TEST_!</h1>
-    <p>Your mathematics learning adventure starts here.</p>
-    <p>Explore, discover, and master mathematics.</p>
-</body>
-</html>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>The Math Lab</title>
+<style>*{box-sizing:border-box}body{font-family:system-ui,Arial;background:#eef3fb;color:#1b2942;margin:0}main{max-width:780px;margin:45px auto;padding:20px}header{text-align:center}h1{color:#1454a3}section{background:white;border-radius:18px;padding:28px;margin-top:24px;box-shadow:0 8px 25px #20355b18}label{display:block;font-weight:bold;margin:18px 0 7px}select,input{width:100%;padding:13px;border:1px solid #aebdd3;border-radius:9px;font:inherit}button{background:#1454a3;color:white;border:0;border-radius:9px;padding:13px 20px;margin:16px 8px 0 0;cursor:pointer;font:inherit}button:hover{background:#0c3970}.hide{display:none}#question{font-size:1.8rem;font-weight:bold;margin:25px 0}#feedback{font-weight:bold;min-height:30px}.muted{color:#58677e}</style></head><body><main><header><h1>🧪 The Math Lab</h1><p>Explore, discover, and master mathematics.</p></header><section id="setup"><h2>Fractions Challenge</h2><p class="muted">Practice 10 questions and get immediate feedback. Type fractions as 3/4.</p><label for="topic">Choose your topic</label><select id="topic"><option value="gcf">Greatest Common Factor (GCF)</option><option value="lcm">Least Common Multiple (LCM)</option><option value="add">Adding Fractions</option><option value="subtract">Subtracting Fractions</option><option value="multiply">Multiplying Fractions</option><option value="divide">Dividing Fractions</option></select><button id="start">Start Challenge</button></section><section id="game" class="hide"><p id="progress"></p><p id="score"></p><div id="question"></div><label for="answer">Your answer</label><input id="answer" autocomplete="off" placeholder="Example: 3/4 or 12"><button id="check">Check Answer</button><button id="next" class="hide">Next Question</button><p id="feedback" role="status" aria-live="polite"></p></section><section id="results" class="hide"><h2>Challenge complete!</h2><p id="summary"></p><button id="again">Try another topic</button></section></main><script>
+const el=id=>document.getElementById(id),random=(a,b)=>Math.floor(Math.random()*(b-a+1))+a,gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a),lcm=(a,b)=>a*b/gcd(a,b);
+function reduced(n,d){if(d<0){n=-n;d=-d}const g=gcd(n,d);return [n/g,d/g]}
+function display(f){return f[1]===1?String(f[0]):f[0]+"/"+f[1]}
+let questions=[],index=0,score=0,locked=false;
+function make(t){let a,b,c,d,n,den,q,ans;if(t==="gcf"||t==="lcm"){a=random(4,24);b=random(4,24);q="Find the "+t.toUpperCase()+" of "+a+" and "+b+".";ans=[t==="gcf"?gcd(a,b):lcm(a,b),1]}else{b=random(2,12);d=random(2,12);a=random(1,b-1);c=random(1,d-1);if(t==="add"){n=a*d+c*b;den=b*d;q=a+"/"+b+" + "+c+"/"+d}if(t==="subtract"){if(a/b<c/d){[a,b,c,d]=[c,d,a,b]}n=a*d-c*b;den=b*d;q=a+"/"+b+" − "+c+"/"+d}if(t==="multiply"){n=a*c;den=b*d;q=a+"/"+b+" × "+c+"/"+d}if(t==="divide"){n=a*d;den=b*c;q=a+"/"+b+" ÷ "+c+"/"+d}ans=reduced(n,den)}return {q,ans}}
+function show(id){["setup","game","results"].forEach(x=>el(x).classList.toggle("hide",x!==id))}
+function render(){locked=false;el("progress").textContent="Question "+(index+1)+" of 10";el("score").textContent="Score: "+score;el("question").textContent=questions[index].q;el("answer").value="";el("answer").disabled=false;el("feedback").textContent="";el("check").classList.remove("hide");el("next").classList.add("hide");el("answer").focus()}
+function parse(s){s=s.trim().replace(/\s+/g,"");if(!/^-?\d+(\/-?\d+)?$/.test(s))return null;let [n,d=1]=s.split("/").map(Number);if(!Number.isSafeInteger(n)||!Number.isSafeInteger(d)||!d)return null;return reduced(n,d)}
+el("start").onclick=()=>{questions=Array.from({length:10},()=>make(el("topic").value));index=0;score=0;show("game");render()};
+el("check").onclick=()=>{if(locked)return;const a=parse(el("answer").value);if(!a){el("feedback").textContent="Enter a number or fraction, for example 3/4.";return}locked=true;const b=questions[index].ans,ok=a[0]===b[0]&&a[1]===b[1];if(ok)score++;el("feedback").textContent=ok?"✓ Correct!":"Not quite. Correct answer: "+display(b);el("score").textContent="Score: "+score;el("answer").disabled=true;el("check").classList.add("hide");el("next").classList.remove("hide");el("next").textContent=index===9?"See Results":"Next Question"};
+el("next").onclick=()=>{index++;if(index===10){el("summary").textContent="You scored "+score+" out of 10 ("+(score*10)+"%).";show("results")}else render()};
+el("again").onclick=()=>show("setup");el("answer").addEventListener("keydown",e=>{if(e.key==="Enter"){if(locked)el("next").click();else el("check").click()}});
+</script></body></html>
